@@ -1,9 +1,25 @@
-openapi: '3.0.0'
+openapi: 3.0.0
 info:
-  title: waffle
+  title: Waffle
   version: '1.0'
+  contact:
+    name: Support
+    url: 'https://waffle.rest/support'
+    email: support@waffle.rest
+  termsOfService: 'https://waffle.rest/v1/terms'
+  license:
+    name: License
+    url: 'https://waffle.rest/v1/license'
+  description: ''
 servers:
-- url: http://localhost:3000
+  - url: 'https://waffle.rest/v1'
+    description: Production Server
 paths: {}
 components:
   schemas: {}
+  securitySchemes:
+    JWT:
+      type: http
+      scheme: bearer
+security:
+  - JWT: []
