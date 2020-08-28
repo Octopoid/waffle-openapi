@@ -1,7 +1,9 @@
 openapi: 3.0.0
+tags:
+  - name: Waffle
 info:
   title: Waffle
-  version: '1.0'
+  version: 1.0.0-pre1
   contact:
     name: Support
     url: 'https://waffle.rest/support'
@@ -10,7 +12,7 @@ info:
   license:
     name: License
     url: 'https://waffle.rest/v1/license'
-  description: ''
+  description: 'test'
 servers:
   - url: 'https://waffle.rest/v1'
     description: Production Server
