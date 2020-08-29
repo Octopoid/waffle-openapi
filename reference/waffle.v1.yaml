@@ -25,6 +25,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       description: |-
         Posts a username and password to the platform.
 
@@ -40,6 +46,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
     head:
       tags: []
       summary: ''
@@ -47,6 +59,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
     options:
       tags: []
       summary: ''
@@ -54,6 +72,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
   /users:
     put:
       tags: []
@@ -62,6 +86,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       description: Create a user account in the system.
       requestBody:
         content:
@@ -76,6 +106,12 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
     get:
       tags: []
       summary: Get information about all users within your teams.
@@ -87,15 +123,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/user-view-json:api-multiple'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       description: Get information about all users within your teams.
   /teams:
     put:
       tags: []
-      summary: ''
+      summary: Creates a new team.
       operationId: put-teams
       responses:
         '200':
           description: OK
+      description: Creates a new team. The team will be created using the free plan.
+    get:
+      summary: Returns a list of teams you have access to.
+      operationId: get-teams
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
+      description: Returns a list of team to which you have access.
   '/teams/{id}':
     parameters:
       - $ref: '#/components/parameters/id'
@@ -109,6 +165,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/team-view-json:api-single'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       operationId: get-teams-id
       description: Get's details about a given team. You will require read access to the team.
   '/teams/{id}/users':
@@ -128,7 +190,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/user-view-json:api-multiple'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       operationId: get-teams-id-users
+      description: 'Returns a list of Users in the given team. Please note, you can only see their membership of teams you have access to.'
   '/users/{id}':
     parameters:
       - schema:
@@ -142,7 +211,80 @@ paths:
       responses:
         '200':
           description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
       operationId: get-users-id
+      description: ''
+  /actors:
+    get:
+      summary: Gets a list of actors
+      tags: []
+      responses:
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
+      operationId: get-actors
+      parameters:
+        - schema:
+            type: string
+          in: header
+  /projects:
+    get:
+      summary: Returns a list of projects.
+      tags: []
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
+      operationId: get-projects
+      parameters:
+        - $ref: '#/components/parameters/team-id-optional'
+    put:
+      summary: Create or Update a Project.
+      operationId: put-projects
+      responses:
+        '201':
+          description: Created
+        '204':
+          description: No Content
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '412':
+          description: Precondition Failed
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
+      description: Creates or updates a project within the platform. This must be done within the context of a single team.
+      parameters:
+        - $ref: '#/components/parameters/X-Team-ID'
+  '/projects/{id}':
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      summary: Returns details of a single project.
+      tags: []
+      responses: {}
+      operationId: get-projects-id
+      description: ''
 components:
   schemas:
     login:
@@ -523,14 +665,73 @@ components:
       required:
         - data
         - jsonapi
+    response-500:
+      title: response-500
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - errors
+        - meta
+        - jsonapi
   parameters:
     id:
       name: id
       in: path
       schema:
         type: integer
+        format: int32
       required: true
       description: Database ID for the current entity.
+    team-id-optional:
+      name: team
+      in: query
+      schema:
+        type: integer
+        format: int32
+      required: false
+      description: Team ID for this operation. Including this optional parameter will filter down the result set to only include records owned by a specific team.
+    team-id-required:
+      name: team
+      in: query
+      schema:
+        type: integer
+        format: int32
+      required: true
+      description: Team ID for this operation. This required parameter will filter down the result set to only include records owned by a specific team.
+    X-Team-ID:
+      name: X-Team-ID
+      in: header
+      schema:
+        type: integer
+        format: int32
+      required: true
+      description: Team ID for this operation. Provides the context under which this operation operates. Mainly used for creating Projects.
+    X-Project-ID:
+      name: X-Project-ID
+      in: header
+      schema:
+        type: integer
+        format: int32
+      required: true
+      description: Project ID for this operation. Provides the context under which this operation operates. Used widely throughout the system.
   securitySchemes:
     JWT:
       type: http
