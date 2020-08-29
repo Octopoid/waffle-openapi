@@ -77,12 +77,17 @@ paths:
         '200':
           description: OK
     get:
-      summary: Get details about a user.
+      tags: []
+      summary: Get information about all users within your teams.
       operationId: get-users
       responses:
         '200':
           description: OK
-      description: Gets information about a user. Only available on users within teams of which you are a member.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user-view-json:api-multiple'
+      description: Get information about all users within your teams.
   /teams:
     put:
       tags: []
@@ -103,9 +108,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user-view'
+                $ref: '#/components/schemas/team-view-json:api-single'
       operationId: get-teams-id
       description: Get's details about a given team. You will require read access to the team.
+  '/teams/{id}/users':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user-view-json:api-multiple'
+      operationId: get-teams-id-users
+  '/users/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-users-id
 components:
   schemas:
     login:
@@ -259,7 +296,7 @@ components:
         links:
           type: array
           items:
-            $ref: '#/components/schemas/json:api-links'
+            $ref: '#/components/schemas/json:api-link'
         status:
           type: string
           description: 'The HTTP status code applicable to this problem, expressed as a string value.'
@@ -289,7 +326,9 @@ components:
                 type: string
                 description: A string indicating which URI query parameter caused the error.
         meta:
-          $ref: '#/components/schemas/json:api-meta'
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
     'json:api-meta':
       title: 'json:api-meta'
       anyOf:
@@ -330,16 +369,160 @@ components:
         type:
           type: string
         attributes:
-          type: string
+          type: array
+          items:
+            type:
+              - object
+              - string
+              - number
+              - integer
+              - boolean
         relationships:
           type: string
         links:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
         meta:
-          type: string
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
       required:
         - id
         - type
+      x-examples: {}
+    'json:api-relationship':
+      title: 'json:api-relationship'
+      oneOf:
+        - properties:
+            links:
+              type: array
+              items:
+                $ref: '#/components/schemas/json:api-link'
+            data:
+              type:
+                - object
+                - string
+                - number
+                - integer
+                - boolean
+            meta:
+              type: array
+              items:
+                $ref: '#/components/schemas/json:api-meta'
+      type: object
+    'user-view-json:api-single':
+      title: 'user-view-json:api-single'
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/user-view'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
+    'user-view-json:api-multiple':
+      title: 'user-view-json:api-multiple'
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/user-view'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
+    'team-view-json:api-single':
+      title: 'team-view-json:api-single'
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/team-view'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
+    'team-view-json:api-multiple':
+      title: 'team-view-json:api-multiple'
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/team-view'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
   parameters:
     id:
       name: id
