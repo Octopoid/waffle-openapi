@@ -12,13 +12,218 @@ info:
   license:
     name: License
     url: 'https://waffle.rest/v1/license'
-  description: 'test'
+  description: test
 servers:
   - url: 'https://waffle.rest/v1'
     description: Production Server
-paths: {}
+paths:
+  /token:
+    post:
+      tags: []
+      summary: Post login details to the platform.
+      operationId: post-token
+      responses:
+        '200':
+          description: OK
+      description: |-
+        Posts a username and password to the platform.
+
+        If these are valid, you will recieve a 200 response with a JWT token in the response headers.
+
+        If they are not valid, you will recieve a 401 response.
+      security: []
+    delete:
+      tags: []
+      description: Revokes your current bearer token.
+      summary: Revokes a bearer token.
+      operationId: delete-token
+      responses:
+        '200':
+          description: OK
+    head:
+      tags: []
+      summary: ''
+      operationId: head-token
+      responses:
+        '200':
+          description: OK
+    options:
+      tags: []
+      summary: ''
+      operationId: options-token
+      responses:
+        '200':
+          description: OK
+  /users:
+    put:
+      tags: []
+      summary: Create a user account.
+      operationId: put-users
+      responses:
+        '200':
+          description: OK
+      description: Create a user account in the system.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user-view'
+        description: The full user model for creating a new system user.
+    patch:
+      tags: []
+      summary: ''
+      operationId: patch-users
+      responses:
+        '200':
+          description: OK
+  /teams:
+    put:
+      tags: []
+      summary: ''
+      operationId: put-teams
+      responses:
+        '200':
+          description: OK
+  '/teams/{id}':
+    parameters:
+      - $ref: '#/components/parameters/id'
+    get:
+      summary: Your GET endpoint
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user-view'
+      operationId: get-teams-id
+      description: Get's details about a given team. You will require read access to the team.
 components:
-  schemas: {}
+  schemas:
+    login:
+      title: Login
+      type: object
+      properties:
+        username:
+          type: string
+          example: user001
+        password:
+          type: string
+          format: password
+          example: password1
+    user-view:
+      title: user-view
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: integer
+          example: 1
+        accountCreated:
+          type: string
+          format: date-time
+          example: '2020-10-03T17:32:28Z'
+        displayName:
+          type: string
+          example: Example User
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/team-view-stub'
+      required:
+        - id
+        - displayName
+        - teams
+        - accountCreated
+    team-view:
+      title: team-view
+      type: object
+      x-examples: {}
+      properties:
+        id:
+          type: integer
+          example: 1
+        displayName:
+          type: string
+          example: Baffled Crab
+        legalName:
+          type: string
+          example: Baffled Crab Ltd.
+        subscription:
+          type: string
+          enum:
+            - Free
+            - Indie
+            - Pro
+          example: Pro
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/user-view-stub'
+      required:
+        - id
+        - displayName
+        - subscription
+        - users
+    team-view-stub:
+      title: team-view-stub
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+          format: int32
+        displayName:
+          type: string
+          example: Baffled Crab
+        legalName:
+          type: string
+          example: Baffled Crab Ltd.
+        users:
+          type: array
+          items:
+            type: integer
+            example: 1
+            format: int32
+      required:
+        - id
+        - displayName
+        - users
+    user-view-stub:
+      title: user-view-stub
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+          example: 1
+        accountCreated:
+          type: string
+          format: date-time
+          example: '2020-10-03T17:32:28Z'
+        displayName:
+          type: string
+          example: Example User
+        teams:
+          type: array
+          items:
+            type: integer
+            format: int32
+            example: 1
+      required:
+        - id
+        - accountCreated
+        - displayName
+        - teams
+  parameters:
+    id:
+      name: id
+      in: path
+      schema:
+        type: integer
+      required: true
+      description: Database ID for the current entity.
   securitySchemes:
     JWT:
       type: http
