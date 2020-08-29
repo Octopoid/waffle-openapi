@@ -76,6 +76,13 @@ paths:
       responses:
         '200':
           description: OK
+    get:
+      summary: Get details about a user.
+      operationId: get-users
+      responses:
+        '200':
+          description: OK
+      description: Gets information about a user. Only available on users within teams of which you are a member.
   /teams:
     put:
       tags: []
@@ -120,6 +127,9 @@ components:
         id:
           type: integer
           example: 1
+        avatar:
+          type: integer
+          example: 1
         accountCreated:
           type: string
           format: date-time
@@ -127,15 +137,21 @@ components:
         displayName:
           type: string
           example: Example User
+        nameFirst:
+          type: string
+          example: Example
+        nameLast:
+          type: string
+          example: User
         teams:
           type: array
           items:
             $ref: '#/components/schemas/team-view-stub'
       required:
         - id
+        - accountCreated
         - displayName
         - teams
-        - accountCreated
     team-view:
       title: team-view
       type: object
@@ -196,7 +212,9 @@ components:
       properties:
         id:
           type: integer
-          format: int32
+          example: 1
+        avatar:
+          type: integer
           example: 1
         accountCreated:
           type: string
@@ -205,6 +223,12 @@ components:
         displayName:
           type: string
           example: Example User
+        nameFirst:
+          type: string
+          example: Example
+        nameLast:
+          type: string
+          example: User
         teams:
           type: array
           items:
@@ -216,6 +240,106 @@ components:
         - accountCreated
         - displayName
         - teams
+    'json:api-version':
+      title: 'json:api-version'
+      type: object
+      properties:
+        version:
+          type: string
+          example: '1.0'
+          default: '1.0'
+    'json:api-error':
+      title: 'json:api-error'
+      type: object
+      description: Error objects provide additional information about problems encountered while performing an operation.
+      properties:
+        id:
+          type: string
+          description: A unique identifier for this particular occurrence of the problem.
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-links'
+        status:
+          type: string
+          description: 'The HTTP status code applicable to this problem, expressed as a string value.'
+        code:
+          type: string
+          description: 'An application-specific error code, expressed as a string value.'
+        title:
+          type: string
+          description: 'A short, human-readable summary of the problem that should not change from occurrence to occurrence of the problem, except for purposes of localization.'
+        detail:
+          type: string
+          description: 'A human-readable explanation specific to this occurrence of the problem. Like title, this field’s value can be localized.'
+        source:
+          type: array
+          description: An object containing references to the source of the error.
+          items:
+            type: object
+            description: An object containing references to the source of the error.
+            properties:
+              pointer:
+                type: string
+                description: |-
+                  A JSON Pointer [RFC6901] to the associated entity in the request document.
+
+                  e.g. "/data" for a primary data object, or "/data/attributes/title" for a specific attribute.
+              parameter:
+                type: string
+                description: A string indicating which URI query parameter caused the error.
+        meta:
+          $ref: '#/components/schemas/json:api-meta'
+    'json:api-meta':
+      title: 'json:api-meta'
+      anyOf:
+        - properties:
+            copyright:
+              type: string
+            authors:
+              type: string
+      type: object
+    'json:api-link':
+      title: 'json:api-link'
+      anyOf:
+        - properties:
+            related:
+              type: object
+              properties:
+                href:
+                  type: string
+                meta:
+                  type: string
+            self:
+              type: string
+            first:
+              type: string
+            last:
+              type: string
+            prev:
+              type: string
+            next:
+              type: string
+      type: object
+    'json:api-resource':
+      title: 'json:api-resource'
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          type: string
+        relationships:
+          type: string
+        links:
+          type: string
+        meta:
+          type: string
+      required:
+        - id
+        - type
   parameters:
     id:
       name: id
