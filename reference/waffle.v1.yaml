@@ -17,7 +17,7 @@ servers:
   - url: 'https://waffle.rest/v1'
     description: Production Server
 paths:
-  /token:
+  /tokens:
     post:
       tags: []
       summary: Post login details to the platform.
@@ -25,6 +25,7 @@ paths:
       responses:
         '200':
           description: OK
+          headers: {}
         '500':
           description: Internal Server Error
           content:
@@ -38,6 +39,12 @@ paths:
 
         If they are not valid, you will recieve a 401 response.
       security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/login'
+      parameters: []
     delete:
       tags: []
       description: Revokes your current bearer token.
@@ -78,6 +85,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/response-500'
+    parameters: []
   /users:
     put:
       tags: []
@@ -97,21 +105,8 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/user-view'
+              $ref: '#/components/schemas/user'
         description: The full user model for creating a new system user.
-    patch:
-      tags: []
-      summary: ''
-      operationId: patch-users
-      responses:
-        '200':
-          description: OK
-        '500':
-          description: Internal Server Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/response-500'
     get:
       tags: []
       summary: Get information about all users within your teams.
@@ -122,7 +117,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user-view-json:api-multiple'
+                $ref: '#/components/schemas/user-json:api-multiple'
         '500':
           description: Internal Server Error
           content:
@@ -139,12 +134,22 @@ paths:
         '200':
           description: OK
       description: Creates a new team. The team will be created using the free plan.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/team'
     get:
+      tags: []
       summary: Returns a list of teams you have access to.
       operationId: get-teams
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/team-json:api-multiple'
         '500':
           description: Internal Server Error
           content:
@@ -164,7 +169,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/team-view-json:api-single'
+                $ref: '#/components/schemas/team-json:api-single'
         '500':
           description: Internal Server Error
           content:
@@ -189,7 +194,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/user-view-json:api-multiple'
+                $ref: '#/components/schemas/user-json:api-multiple'
         '500':
           description: Internal Server Error
           content:
@@ -206,11 +211,15 @@ paths:
         in: path
         required: true
     get:
-      summary: Your GET endpoint
+      summary: Get a single user.
       tags: []
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/user-json:api-single'
         '500':
           description: Internal Server Error
           content:
@@ -218,12 +227,18 @@ paths:
               schema:
                 $ref: '#/components/schemas/response-500'
       operationId: get-users-id
-      description: ''
+      description: Gets a single user by ID. You will need appropriate rights to view a users details.
   /actors:
     get:
       summary: Gets a list of actors
       tags: []
       responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
         '500':
           description: Internal Server Error
           content:
@@ -232,9 +247,7 @@ paths:
                 $ref: '#/components/schemas/response-500'
       operationId: get-actors
       parameters:
-        - schema:
-            type: string
-          in: header
+        - $ref: '#/components/parameters/X-Project-ID'
   /projects:
     get:
       summary: Returns a list of projects.
@@ -242,6 +255,11 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
         '500':
           description: Internal Server Error
           content:
@@ -252,6 +270,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/team-id-optional'
     put:
+      tags: []
       summary: Create or Update a Project.
       operationId: put-projects
       responses:
@@ -282,9 +301,25 @@ paths:
     get:
       summary: Returns details of a single project.
       tags: []
-      responses: {}
+      responses:
+        '200':
+          description: OK
       operationId: get-projects-id
       description: ''
+    delete:
+      tags: []
+      summary: ''
+      operationId: delete-projects-id
+      responses:
+        '200':
+          description: OK
+    put:
+      tags: []
+      summary: ''
+      operationId: put-projects-id
+      responses:
+        '200':
+          description: OK
 components:
   schemas:
     login:
@@ -298,8 +333,8 @@ components:
           type: string
           format: password
           example: password1
-    user-view:
-      title: user-view
+    user:
+      title: User
       type: object
       x-examples: {}
       properties:
@@ -325,14 +360,14 @@ components:
         teams:
           type: array
           items:
-            $ref: '#/components/schemas/team-view-stub'
+            $ref: '#/components/schemas/team-stub'
       required:
         - id
         - accountCreated
         - displayName
         - teams
-    team-view:
-      title: team-view
+    team:
+      title: Team
       type: object
       x-examples: {}
       properties:
@@ -355,14 +390,14 @@ components:
         users:
           type: array
           items:
-            $ref: '#/components/schemas/user-view-stub'
+            $ref: '#/components/schemas/user-stub'
       required:
         - id
         - displayName
         - subscription
         - users
-    team-view-stub:
-      title: team-view-stub
+    team-stub:
+      title: Team (Stub)
       type: object
       properties:
         id:
@@ -385,8 +420,8 @@ components:
         - id
         - displayName
         - users
-    user-view-stub:
-      title: user-view-stub
+    user-stub:
+      title: User (Stub)
       type: object
       properties:
         id:
@@ -553,12 +588,12 @@ components:
               items:
                 $ref: '#/components/schemas/json:api-meta'
       type: object
-    'user-view-json:api-single':
-      title: 'user-view-json:api-single'
+    'user-json:api-single':
+      title: 'User (Json:Api) (Single)'
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/user-view'
+          $ref: '#/components/schemas/user'
         errors:
           type: array
           items:
@@ -580,14 +615,14 @@ components:
       required:
         - data
         - jsonapi
-    'user-view-json:api-multiple':
-      title: 'user-view-json:api-multiple'
+    'user-json:api-multiple':
+      title: 'User (Json:Api) (Multiple)'
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/user-view'
+            $ref: '#/components/schemas/user'
         errors:
           type: array
           items:
@@ -609,12 +644,12 @@ components:
       required:
         - data
         - jsonapi
-    'team-view-json:api-single':
-      title: 'team-view-json:api-single'
+    'team-json:api-single':
+      title: 'Team (Json:Api) (Single)'
       type: object
       properties:
         data:
-          $ref: '#/components/schemas/team-view'
+          $ref: '#/components/schemas/team'
         errors:
           type: array
           items:
@@ -636,14 +671,14 @@ components:
       required:
         - data
         - jsonapi
-    'team-view-json:api-multiple':
-      title: 'team-view-json:api-multiple'
+    'team-json:api-multiple':
+      title: 'Team (Json:Api) (Multiple)'
       type: object
       properties:
         data:
           type: array
           items:
-            $ref: '#/components/schemas/team-view'
+            $ref: '#/components/schemas/team'
         errors:
           type: array
           items:
