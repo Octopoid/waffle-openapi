@@ -273,7 +273,7 @@ paths:
         - JWT: []
   /actors:
     get:
-      summary: Gets a list of actors
+      summary: Returns a list of actors.
       tags: []
       responses:
         '200':
@@ -281,7 +281,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/actor-json:api-multiple'
         '500':
           description: Internal Server Error
           content:
@@ -293,6 +293,10 @@ paths:
         - $ref: '#/components/parameters/X-Project-ID'
       security:
         - JWT: []
+      description: |-
+        Returns a list of all actors within a given project.
+
+        This operation requires a ProjectID to be sent via the headers.
   /projects:
     get:
       summary: Returns a list of projects.
@@ -375,6 +379,21 @@ paths:
           description: OK
       security:
         - JWT: []
+  '/teams/{id}/projects':
+    parameters:
+      - schema:
+          type: integer
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Returns a list of projects owned by a given team.
+      tags: []
+      responses:
+        '200':
+          description: OK
+      operationId: get-teams-id-projects
+      description: Returns a list of projects owned by a given team.
 components:
   schemas:
     login:
@@ -810,6 +829,74 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/controller-info'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
+    actor:
+      title: Actor
+      type: object
+      description: ''
+      properties:
+        id:
+          type: integer
+        displayName:
+          type: string
+      required:
+        - id
+        - displayName
+    'actor-json:api-single':
+      title: 'actor-json:api'
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/actor'
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-error'
+        meta:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-meta'
+        jsonapi:
+          $ref: '#/components/schemas/json:api-version'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-link'
+        included:
+          type: array
+          items:
+            $ref: '#/components/schemas/json:api-resource'
+      required:
+        - data
+        - jsonapi
+    'actor-json:api-multiple':
+      title: 'actor-json:api'
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/actor'
         errors:
           type: array
           items:
