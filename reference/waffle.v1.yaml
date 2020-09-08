@@ -98,8 +98,30 @@ paths:
   /users:
     put:
       tags: []
-      summary: Create a user account.
+      summary: Create or updates a user account.
       operationId: put-users
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/response-500'
+      description: Create or updates a user account. Existing users are matched by username.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/team-user'
+        description: The full user model for creating a new system user.
+      security:
+        - JWT: []
+    post:
+      tags: []
+      summary: Create a user account.
+      operationId: post-users
       responses:
         '200':
           description: OK
@@ -220,7 +242,7 @@ paths:
   '/teams/{id}/users':
     parameters:
       - schema:
-          type: string
+          type: integer
         name: id
         in: path
         required: true
@@ -247,7 +269,7 @@ paths:
   '/users/{id}':
     parameters:
       - schema:
-          type: string
+          type: integer
         name: id
         in: path
         required: true
